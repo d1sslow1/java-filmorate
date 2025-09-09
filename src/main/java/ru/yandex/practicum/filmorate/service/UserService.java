@@ -18,7 +18,7 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        validateUser(user);
+        // Валидация теперь автоматически через аннотации в модели
         user.setId(nextId++);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -32,17 +32,12 @@ public class UserService {
         if (!users.containsKey(user.getId())) {
             throw new NotFoundException("Пользователь с id=" + user.getId() + " не найден");
         }
-        validateUser(user);
+        // Валидация теперь автоматически через аннотации в модели
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         users.put(user.getId(), user);
         log.info("Обновлен пользователь: {}", user);
         return user;
-    }
-
-    private void validateUser(User user) {
-        // Основная валидация делается через аннотации в модели
-        // Здесь можно добавить дополнительную бизнес-логику при необходимости
     }
 }
