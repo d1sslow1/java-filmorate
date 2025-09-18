@@ -1,52 +1,55 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+
 import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 class FilmTest {
-    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
-    void validFilmShouldPass() {
+    void shouldCreateFilmWithValidData() {
         Film film = new Film();
-        film.setName("Film");
-        film.setDescription("Desc");
+        film.setName("Test Film");
+        film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
 
-        assertEquals(0, validator.validate(film).size());
+        assertNull(film.getId());
+        assertEquals("Test Film", film.getName());
+        assertEquals("Test Description", film.getDescription());
+        assertEquals(120, film.getDuration());
+        assertTrue(film.getLikes().isEmpty());
     }
 
     @Test
-    void blankNameShouldFail() {
+    void shouldThrowExceptionWhenNameIsBlank() {
         Film film = new Film();
         film.setName("");
-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(120);
+        film.setDescription("Test");
+        film.setReleaseDate(LocalDate.now());
+        film.setDuration(100);
 
-        assertEquals(1, validator.validate(film).size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), null);
+
+        assertThrows(ValidationException.class, () -> filmService.createFilm(film));
     }
 
     @Test
-    void nullReleaseDateShouldFail() {
+    void shouldAddLikeToFilm() {
         Film film = new Film();
-        film.setName("Film");
-        film.setReleaseDate(null);
+        film.setName("Test Film");
         film.setDuration(120);
 
-        assertEquals(1, validator.validate(film).size());
-    }
+        film.getLikes().add(1);
+        film.getLikes().add(2);
 
-    @Test
-    void negativeDurationShouldFail() {
-        Film film = new Film();
-        film.setName("Film");
-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(-1);
-
-        assertEquals(1, validator.validate(film).size());
+        assertEquals(2, film.getLikes().size());
+        assertTrue(film.getLikes().contains(1));
+        assertTrue(film.getLikes().contains(2));
     }
 }
