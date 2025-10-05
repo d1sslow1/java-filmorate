@@ -11,12 +11,12 @@ import java.util.Set;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
-     Integer id;
+    Integer id;
     String name;
     String description;
     LocalDate releaseDate;
     Integer duration;
     Mpa mpa;
-    Set<Genre> genres;
+    Set<Genre> genres = new HashSet<>(); // Исправлено на Set
     Set<Integer> likes = new HashSet<>();
 }

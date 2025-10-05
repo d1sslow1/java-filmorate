@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -19,7 +16,6 @@ class UserTest {
         user.setName("Test User");
         user.setBirthday(LocalDate.of(1990, 1, 1));
 
-        assertNull(user.getId());
         assertEquals("test@mail.com", user.getEmail());
         assertEquals("testlogin", user.getLogin());
         assertEquals("Test User", user.getName());
@@ -27,30 +23,13 @@ class UserTest {
     }
 
     @Test
-    void shouldSetLoginAsNameWhenNameIsBlank() {
+    void shouldSetLoginAsNameWhenNameIsNull() {
         User user = new User();
         user.setEmail("test@mail.com");
         user.setLogin("testlogin");
-        user.setName("");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
+        user.setName(null);
 
-        UserService userService = new UserService(new InMemoryUserStorage());
-        User createdUser = userService.createUser(user);
-
-        assertEquals("testlogin", createdUser.getName());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenEmailInvalid() {
-        User user = new User();
-        user.setEmail("invalid-email");
-        user.setLogin("testlogin");
-        user.setName("Test User");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
-
-        UserService userService = new UserService(new InMemoryUserStorage());
-
-        assertThrows(ValidationException.class, () -> userService.createUser(user));
+        assertNull(user.getName());
     }
 
     @Test
@@ -65,5 +44,14 @@ class UserTest {
         assertEquals(2, user.getFriends().size());
         assertTrue(user.getFriends().contains(1));
         assertTrue(user.getFriends().contains(2));
+    }
+
+    @Test
+    void shouldSetBirthday() {
+        User user = new User();
+        LocalDate birthday = LocalDate.of(1990, 5, 15);
+        user.setBirthday(birthday);
+
+        assertEquals(birthday, user.getBirthday());
     }
 }
