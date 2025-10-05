@@ -44,11 +44,11 @@ CREATE TABLE IF NOT EXISTS likes (
     PRIMARY KEY (film_id, user_id)
 );
 
--- Создание таблицы дружбы (односторонняя)
+-- Создание таблицы дружбы (односторонняя с подтверждением)
 CREATE TABLE IF NOT EXISTS friendships (
     user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
     friend_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
-    status VARCHAR(20) DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'confirmed',
     PRIMARY KEY (user_id, friend_id)
 );
 

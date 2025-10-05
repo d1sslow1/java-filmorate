@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 @Primary
 @RequiredArgsConstructor
@@ -88,7 +90,9 @@ public class UserDbStorage implements UserStorage {
 
     private Set<Integer> loadFriends(int userId) {
         String sql = "SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'confirmed'";
-        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("friend_id"), userId));
+        List<Integer> friends = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("friend_id"), userId);
+        log.debug("Загружено друзей для пользователя {}: {}", userId, friends.size());
+        return new HashSet<>(friends);
     }
 
     private void loadFriendsForUsers(Map<Integer, User> userMap) {
@@ -111,29 +115,36 @@ public class UserDbStorage implements UserStorage {
 
     // Методы для работы с дружбой
     public void addFriend(int userId, int friendId) {
-        String sql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'pending')";
+        String sql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'confirmed')";
         jdbcTemplate.update(sql, userId, friendId);
+        log.debug("Добавлена дружба: {} -> {}", userId, friendId);
     }
 
     public void confirmFriend(int userId, int friendId) {
         String sql = "UPDATE friendships SET status = 'confirmed' WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql, userId, friendId);
+        int updated = jdbcTemplate.update(sql, userId, friendId);
+        log.debug("Подтверждена дружба: {} -> {} (обновлено строк: {})", userId, friendId, updated);
     }
 
     public void removeFriend(int userId, int friendId) {
         String sql = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql, userId, friendId);
+        int deleted = jdbcTemplate.update(sql, userId, friendId);
+        log.debug("Удалена дружба: {} -> {} (удалено строк: {})", userId, friendId, deleted);
     }
 
     public List<Integer> getFriendIds(int userId) {
         String sql = "SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'confirmed'";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("friend_id"), userId);
+        List<Integer> friends = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("friend_id"), userId);
+        log.debug("Найдено ID друзей для пользователя {}: {}", userId, friends);
+        return friends;
     }
 
     public List<Integer> getCommonFriends(int userId, int otherId) {
         String sql = "SELECT f1.friend_id FROM friendships f1 " +
                 "JOIN friendships f2 ON f1.friend_id = f2.friend_id " +
                 "WHERE f1.user_id = ? AND f2.user_id = ? AND f1.status = 'confirmed' AND f2.status = 'confirmed'";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("friend_id"), userId, otherId);
+        List<Integer> commonFriends = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("friend_id"), userId, otherId);
+        log.debug("Общие друзья пользователей {} и {}: {}", userId, otherId, commonFriends);
+        return commonFriends;
     }
 }

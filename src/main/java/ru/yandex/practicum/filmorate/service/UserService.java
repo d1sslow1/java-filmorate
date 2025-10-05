@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -45,7 +47,11 @@ public class UserService {
     public void addFriend(int userId, int friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
+        log.debug("Добавление дружбы: пользователь {} -> пользователь {}", userId, friendId);
         userStorage.addFriend(userId, friendId);
+        // Автоматически подтверждаем дружбу
+        userStorage.confirmFriend(userId, friendId);
+        log.debug("Дружба подтверждена");
     }
 
     public void confirmFriend(int userId, int friendId) {
@@ -61,6 +67,7 @@ public class UserService {
     public Collection<User> getFriends(int userId) {
         getById(userId);
         List<Integer> friendIds = userStorage.getFriendIds(userId);
+        log.debug("Найдено друзей у пользователя {}: {}", userId, friendIds.size());
         return friendIds.stream()
                 .map(this::getById)
                 .collect(Collectors.toList());
@@ -70,6 +77,7 @@ public class UserService {
         getById(userId);
         getById(otherId);
         List<Integer> commonFriendIds = userStorage.getCommonFriends(userId, otherId);
+        log.debug("Общие друзья пользователей {} и {}: {}", userId, otherId, commonFriendIds.size());
         return commonFriendIds.stream()
                 .map(this::getById)
                 .collect(Collectors.toList());

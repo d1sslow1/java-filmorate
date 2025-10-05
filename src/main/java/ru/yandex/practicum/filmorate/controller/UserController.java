@@ -29,19 +29,23 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        return userService.createUser(user);
+        User createdUser = userService.createUser(user);
+        log.info("Создан пользователь: {}", createdUser);
+        return createdUser;
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+        User updatedUser = userService.updateUser(user);
+        log.info("Обновлен пользователь: {}", updatedUser);
+        return updatedUser;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
         userService.addFriend(id, friendId);
-        log.info("Пользователь {} отправил заявку в друзья пользователю {}", id, friendId);
+        log.info("Пользователь {} добавил в друзья пользователя {}", id, friendId);
     }
 
     @PutMapping("/{id}/friends/{friendId}/confirm")
@@ -60,11 +64,15 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public Collection<User> getFriends(@PathVariable int id) {
-        return userService.getFriends(id);
+        Collection<User> friends = userService.getFriends(id);
+        log.info("Запрошены друзья пользователя {}: найдено {}", id, friends.size());
+        return friends;
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        return userService.getCommonFriends(id, otherId);
+        Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
+        log.info("Запрошены общие друзья пользователей {} и {}: найдено {}", id, otherId, commonFriends.size());
+        return commonFriends;
     }
 }
