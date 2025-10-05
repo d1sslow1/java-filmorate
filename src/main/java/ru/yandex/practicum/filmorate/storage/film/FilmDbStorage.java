@@ -110,6 +110,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return film;
     }
+
     public Genre mapRowToGenre(ResultSet rs, int rowNum) throws SQLException {
         Genre genre = new Genre();
         genre.setId(rs.getInt("genre_id"));
