@@ -16,12 +16,12 @@ public class MpaDbStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public List<Mpa> getAll() {
-        String sql = "SELECT * FROM mpa_ratings ORDER BY mpa_id"; // Исправлено на mpa_ratings
+        String sql = "SELECT * FROM mpa_ratings ORDER BY mpa_id";
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
 
     public Optional<Mpa> getById(int id) {
-        String sql = "SELECT * FROM mpa_ratings WHERE mpa_id = ?"; // Исправлено на mpa_ratings
+        String sql = "SELECT * FROM mpa_ratings WHERE mpa_id = ?";
         List<Mpa> mpaList = jdbcTemplate.query(sql, this::mapRowToMpa, id);
         return mpaList.isEmpty() ? Optional.empty() : Optional.of(mpaList.get(0));
     }

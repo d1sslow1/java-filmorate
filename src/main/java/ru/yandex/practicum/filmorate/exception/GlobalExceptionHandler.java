@@ -37,10 +37,16 @@ public class GlobalExceptionHandler {
     return Map.of("error", e.getMessage());
   }
 
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public Map<String, String> handleIllegalArgument(IllegalArgumentException e) {
+    return Map.of("error", e.getMessage());
+  }
+
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public Map<String, String> handleOther(Exception e) {
-    e.printStackTrace(); // Для отладки
+    e.printStackTrace();
     return Map.of("error", "Внутренняя ошибка сервера: " + e.getMessage());
   }
 }

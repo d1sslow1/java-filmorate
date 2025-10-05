@@ -59,7 +59,7 @@ public class UserService {
     }
 
     public Collection<User> getFriends(int userId) {
-        getById(userId); // Проверяем существование пользователя
+        getById(userId);
         List<Integer> friendIds = userStorage.getFriendIds(userId);
         return friendIds.stream()
                 .map(this::getById)

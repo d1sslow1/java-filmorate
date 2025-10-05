@@ -25,6 +25,9 @@ public class FilmService {
 
     public Film createFilm(Film film) {
         validate(film);
+        if (film.getMpa() == null) {
+            throw new ValidationException("MPA рейтинг обязателен");
+        }
         validateMpa(film.getMpa().getId());
         if (film.getGenres() != null) {
             validateGenres(film.getGenres());
@@ -35,6 +38,9 @@ public class FilmService {
     public Film updateFilm(Film film) {
         getById(film.getId());
         validate(film);
+        if (film.getMpa() == null) {
+            throw new ValidationException("MPA рейтинг обязателен");
+        }
         validateMpa(film.getMpa().getId());
         if (film.getGenres() != null) {
             validateGenres(film.getGenres());
@@ -86,7 +92,6 @@ public class FilmService {
 
         List<Film> films = filmStorage.getJdbcTemplate().query(sql, filmStorage::mapRowToFilm, count);
 
-        // Загружаем жанры для популярных фильмов
         films.forEach(film -> {
             Set<Genre> genres = filmStorage.loadGenres(film.getId());
             film.setGenres(genres);

@@ -59,7 +59,6 @@ public class UserDbStorage implements UserStorage {
         }
 
         User user = users.get(0);
-        // Загружаем друзей (односторонняя дружба)
         user.setFriends(loadFriends(id));
 
         return Optional.of(user);
@@ -70,7 +69,6 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * FROM users";
         List<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
 
-        // Загружаем друзей для всех пользователей
         Map<Integer, User> userMap = users.stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
         loadFriendsForUsers(userMap);
@@ -111,7 +109,7 @@ public class UserDbStorage implements UserStorage {
         });
     }
 
-    // Методы для работы с дружбой (добавлены для сервиса)
+    // Методы для работы с дружбой
     public void addFriend(int userId, int friendId) {
         String sql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'pending')";
         jdbcTemplate.update(sql, userId, friendId);
